@@ -1,16 +1,11 @@
-import http from 'node:http';
+import http2 from 'node:http2';
 import fs from 'node:fs';
 
-const server = http.createServer((req, res) => {
+const server = http2.createSecureServer({
+  key: fs.readFileSync('./keys/server.key'),
+  cert: fs.readFileSync('./keys/server.crt')
+}, (req, res) => {
   console.log(req.url);
-
-  // res.writeHead(200, { 'content-type': 'text/html' });
-  // res.write(`<h1>URL ${req.url}</h1>`);
-  // res.end();
-
-  // const data = { name: 'John Doe', age: 30, city: 'Canada' };
-  // res.writeHead(200, { 'content-type': 'application/json' });
-  // res.end(JSON.stringify(data));
 
   if (req.url === '/') {
     const htmlFile = fs.readFileSync('./public/index.html', 'utf-8');
@@ -25,8 +20,14 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'content-type': 'text/css' });
   }
 
-  const responseContent = fs.readFileSync(`./public${req.url}`, 'utf-8');
-  res.end(responseContent);
+  try {
+    const responseContent = fs.readFileSync(`./public${req.url}`, 'utf-8');
+    res.end(responseContent);
+  } catch (err) {
+    res.writeHead(404, { 'content-type': 'text/html' });
+    res.end();
+  }
+
 });
 
 server.listen(8080, () => {

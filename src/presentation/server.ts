@@ -1,24 +1,37 @@
 import express from 'express';
 import path from 'node:path';
 
+interface Options {
+  port: number;
+  public_path?: string;
+}
+
 export class Server {
   private app = express();
+  private readonly port: number;
+  private readonly publicPath: string;
+
+  constructor(options: Options) {
+    const { port, public_path = 'public' } = options;
+    this.port = port;
+    this.publicPath = public_path;
+  }
 
   async start() {
 
     //* middlewares
 
     //* public folder
-    this.app.use(express.static('public'));
+    this.app.use(express.static(this.publicPath));
 
     this.app.get('/*splat', (req, res) => {
-      const indexPath = path.join(__dirname + '../../../public/index.html');
+      const indexPath = path.join(__dirname + `../../../${this.publicPath}/index.html`);
       res.sendFile(indexPath);
       return;
     });
 
-    this.app.listen(3000, () => {
-      console.log(`servidor corriendo en el puerto 3000`);
+    this.app.listen(this.port, () => {
+      console.log(`servidor corriendo en el puerto ${this.port}`);
     });
   }
 }

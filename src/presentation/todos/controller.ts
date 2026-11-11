@@ -46,4 +46,28 @@ export class TodosController {
     todos.push(newTodo)
     res.json(newTodo);
   }
+
+  public updateTodo = (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'argumento ID no es un número' });
+      return;
+    }
+
+    const todo = todos.find(todo => todo.id === id);
+    if (!todo) {
+      res.status(404).json({ error: `TODO con ID ${id} no encontrado` });
+      return;
+    }
+
+    const { text, completedAt } = req.body;
+
+    todo.text = text || todo.text;
+    (completedAt === 'null')
+      ? todo.completedAt = null
+      : todo.completedAt = new Date(completedAt || todo.completedAt);
+
+
+    res.json(todo);
+  }
 }

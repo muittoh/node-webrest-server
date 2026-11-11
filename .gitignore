@@ -1,6 +1,7 @@
 node_modules/
 dist/
 keys/
-postgres/
+/postgres/
+src/generated
 
 .env

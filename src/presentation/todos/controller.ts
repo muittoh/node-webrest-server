@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
 const todos = [
-  { id: 1, text: 'mensaje 1', createdAt: new Date() },
-  { id: 2, text: 'mensaje 2', createdAt: new Date() },
-  { id: 3, text: 'mensaje 3', createdAt: null },
+  { id: 1, text: 'mensaje 1', completedAt: new Date() },
+  { id: 2, text: 'mensaje 2', completedAt: new Date() },
+  { id: 3, text: 'mensaje 3', completedAt: null },
 ];
 
 export class TodosController {
@@ -28,5 +28,22 @@ export class TodosController {
     (todo)
       ? res.json(todo)
       : res.json({ error: `TODO con ID ${id} no encontrado` })
+  }
+
+  public createTodo = (req: Request, res: Response) => {
+    const { text } = req.body;
+    if (!text) {
+      res.status(400).json({ error: 'propiedad <text> es obligatoria' });
+      return;
+    }
+
+    const newTodo = {
+      id: todos.length + 1,
+      text: text,
+      completedAt: new Date(),
+    };
+
+    todos.push(newTodo)
+    res.json(newTodo);
   }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../data/postgres";
 import { CreateTodoDto } from "../../domain/dtos/todos/create-todo.dto";
+import { UpdateTodoDto } from "../../domain/dtos";
 
 const todos = [
   { id: 1, text: 'mensaje 1', completedAt: new Date() },
@@ -48,8 +49,9 @@ export class TodosController {
 
   public updateTodo = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    if (isNaN(id)) {
-      res.status(400).json({ error: 'argumento ID no es un número' });
+    const [error, updateTodoDto] = UpdateTodoDto.from({ ...req.body, id });
+    if (error) {
+      res.status(400).json({ error });
       return;
     }
 
@@ -61,14 +63,9 @@ export class TodosController {
       return;
     }
 
-    const { text, completedAt } = req.body;
-
     const updatedTodo = await prisma.todo.update({
       where: { id },
-      data: {
-        text,
-        completedAt: (completedAt) ? new Date(completedAt) : null
-      }
+      data: updateTodoDto!.values
     });
 
     res.json(updatedTodo);

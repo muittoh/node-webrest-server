@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { prisma } from "../../data/postgres";
 import { CreateTodoDto } from "../../domain/dtos/todos/create-todo.dto";
 import { UpdateTodoDto } from "../../domain/dtos";
-import { TodoRepository } from "../../domain";
+import { CreateTodo, DeleteTodo, GetTodo, GetTodos, TodoRepository, UpdateTodo } from "../../domain";
 
 export class TodosController {
 
@@ -11,48 +10,49 @@ export class TodosController {
     private readonly todoRepository: TodoRepository,
   ) { }
 
-  public getTodos = async (req: Request, res: Response) => {
-    const todos = await this.todoRepository.getAll();
-    res.json(todos);
-    return;
+  public getTodos = (req: Request, res: Response) => {
+    new GetTodos(this.todoRepository)
+      .execute()
+      .then(todos => res.json(todos))
+      .catch(err => res.status(400).json({ err }));
   }
 
-  public getTodoById = async (req: Request, res: Response) => {
+  public getTodoById = (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    try {
-      const todo = await this.todoRepository.findById(id);
-      res.json(todo);
-
-    } catch (err) {
-      res.status(400).json({ err });
-    }
+    new GetTodo(this.todoRepository)
+      .execute(id)
+      .then(todo => res.json(todo))
+      .catch(err => res.status(400).json({ err }));
   }
 
-  public createTodo = async (req: Request, res: Response) => {
+  public createTodo = (req: Request, res: Response) => {
     const [error, createTodoDto] = CreateTodoDto.from(req.body ?? {});
     if (error) return res.status(400).json({ error });
 
-    const todo = await this.todoRepository.create(req.body);
-    res.json(todo);
+    new CreateTodo(this.todoRepository)
+      .execute(createTodoDto!)
+      .then(todo => res.json(todo))
+      .catch(err => res.status(400).json({ err }));
   }
 
-  public updateTodo = async (req: Request, res: Response) => {
+  public updateTodo = (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const [error, updateTodoDto] = UpdateTodoDto.from({ ...req.body, id });
-    if (error) {
-      res.status(400).json({ error });
-      return;
-    }
+    if (error) return res.status(400).json({ error });
 
-    const updatedTodo = await this.todoRepository.updateById(updateTodoDto!);
-    res.json(updatedTodo);
+    new UpdateTodo(this.todoRepository)
+      .execute(updateTodoDto!)
+      .then(todo => res.json(todo))
+      .catch(err => res.status(400).json({ err }));
   }
 
-  public deleteTodo = async (req: Request, res: Response) => {
+  public deleteTodo = (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const deletedTodo = await this.todoRepository.deleteById(id);
-    return res.json(deletedTodo);
+    new DeleteTodo(this.todoRepository)
+      .execute(id)
+      .then(todo => res.json(todo))
+      .catch(err => res.status(400).json({ err }))
   }
 }

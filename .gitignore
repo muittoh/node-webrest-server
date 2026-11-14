@@ -5,3 +5,7 @@ keys/
 src/generated
 
 .env
+.env.test
+
+# Vitest reports and artifacts
+.vitest/

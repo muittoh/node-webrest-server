@@ -3,6 +3,7 @@ dist/
 keys/
 /postgres/
 src/generated
+coverage/
 
 .env
 .env.test

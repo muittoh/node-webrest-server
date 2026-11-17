@@ -1,5 +1,5 @@
 import { prisma } from "../../data/postgres";
-import { CreateTodoDto, TodoDatasource, TodoEntity, UpdateTodoDto } from "../../domain";
+import { CreateTodoDto, CustomError, TodoDatasource, TodoEntity, UpdateTodoDto } from "../../domain";
 
 export class TodoDatasourceImpl implements TodoDatasource {
   async create(createTodoDto: CreateTodoDto): Promise<TodoEntity> {
@@ -20,7 +20,7 @@ export class TodoDatasourceImpl implements TodoDatasource {
       where: { id }
     });
 
-    if (!todo) throw `TODO con ID ${id} no encontrado`;
+    if (!todo) throw new CustomError(`TODO con ID ${id} no encontrado`, 404);
     return TodoEntity.fromObject(todo);
   }
 

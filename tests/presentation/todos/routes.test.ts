@@ -30,7 +30,7 @@ describe('todo route testing', () => {
       .get('/api/todos')
       .expect(200);
 
-    console.log(body);
+    // console.log(body);
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBe(2);
     expect(body[0].text).toBe(todo1.text);
@@ -56,10 +56,10 @@ describe('todo route testing', () => {
     const todoId = 999;
     const { body } = await request(testServer.app)
       .get(`/api/todos/${todoId}`)
-      .expect(400);
+      .expect(404);
 
     expect(body).toEqual({
-      err: `TODO con ID ${todoId} no encontrado`
+      error: `TODO con ID ${todoId} no encontrado`
     });
   });
 
@@ -114,9 +114,9 @@ describe('todo route testing', () => {
     const { body } = await request(testServer.app)
       .put('/api/todos/999')
       .send({ text: 'test mensaje UPDATE', completedAt: '2026-11-16' })
-      .expect(400);
+      .expect(404);
 
-    expect(body).toEqual({ err: expect.any(String) });
+    expect(body).toEqual({ error: expect.any(String) });
   });
 
   test('should return an updated TODO only the date api/todos/:id', async () => {
@@ -152,8 +152,8 @@ describe('todo route testing', () => {
   test('should return 404 if TODO do not exist api/todos/:id', async () => {
     const { body } = await request(testServer.app)
       .delete('/api/todos/999')
-      .expect(400);
+      .expect(404);
 
-    expect(body).toEqual({ err: expect.any(String) });
+    expect(body).toEqual({ error: expect.any(String) });
   });
 });
